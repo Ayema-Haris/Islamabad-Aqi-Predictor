@@ -1,0 +1,35 @@
+name: AQI Prediction CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'  # daily at midnight
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run AQI prediction
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+        run: python src/forecasting/predict_next_3_days.py
+
+      - name: Upload predictions CSV
+        uses: actions/upload-artifact@v3
+        with:
+          name: next-72-hours-aqi
+          path: artifacts/predictions/next_72_hours.csv
