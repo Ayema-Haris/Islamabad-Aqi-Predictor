@@ -1,6 +1,21 @@
-venv/
+# Python
 __pycache__/
-*.pyc
-artifacts/
-*.pkl
-.ipynb_checkpoints/
+*.py[cod]
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+
+# Virtual environment
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Hopsworks API key
+*.env

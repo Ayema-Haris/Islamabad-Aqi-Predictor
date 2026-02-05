@@ -1,0 +1,14 @@
+model,RMSE,MAE,R2
+RandomForestRegressor(random_state=42),1.8798260563845919,1.30987556561086,0.9951838660138754
+Ridge(),0.8320122488235037,0.5827769751382746,0.9990565417849371
+"XGBRegressor(base_score=None, booster=None, callbacks=None,
+             colsample_bylevel=None, colsample_bynode=None,
+             colsample_bytree=None, device=None, early_stopping_rounds=None,
+             enable_categorical=False, eval_metric=None, feature_types=None,
+             feature_weights=None, gamma=None, grow_policy=None,
+             importance_type=None, interaction_constraints=None,
+             learning_rate=0.1, max_bin=None, max_cat_threshold=None,
+             max_cat_to_onehot=None, max_delta_step=None, max_depth=None,
+             max_leaves=None, min_child_weight=None, missing=nan,
+             monotone_constraints=None, multi_strategy=None, n_estimators=200,
+             n_jobs=None, num_parallel_tree=None, ...)",1.391289430000103,0.9133994365709398,0.9973618577950631
