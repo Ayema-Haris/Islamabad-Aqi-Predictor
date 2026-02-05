@@ -1,9 +1,6 @@
-# Ignore Python virtual environment
 venv/
-
-# Ignore cache
 __pycache__/
 *.pyc
-
-# Ignore prediction CSVs and artifacts
 artifacts/
+*.pkl
+.ipynb_checkpoints/
