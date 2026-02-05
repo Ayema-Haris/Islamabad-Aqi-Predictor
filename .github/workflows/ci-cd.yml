@@ -1,3 +1,4 @@
+# .github/workflows/ci-cd.yml
 name: AQI Prediction CI/CD
 
 on:
@@ -7,10 +8,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  run-prediction:
-    runs-on: windows-latest   # Keep Windows if you need it
+  build-and-run:
+    runs-on: windows-latest
     env:
       HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -20,10 +22,15 @@ jobs:
         with:
           python-version: 3.11
 
-      - name: Install dependencies for CI
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-ci.txt
 
+      - name: Register model to Hopsworks
+        run: |
+          python src/forecasting/register_model.py
+
       - name: Run AQI prediction
-        run: python src/forecasting/predict_next_3_days.py
+        run: |
+          python src/forecasting/predict_next_3_days.py
