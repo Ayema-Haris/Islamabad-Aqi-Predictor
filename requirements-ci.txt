@@ -1,4 +1,4 @@
-@"
+
 # Minimal CI dependencies for GitHub Actions
 hopsworks[python]==4.7.2
 pandas==2.1.4
