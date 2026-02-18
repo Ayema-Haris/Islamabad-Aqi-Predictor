@@ -1,4 +1,4 @@
-@"
+
 # Islamabad AQI Predictor
 
 ML-powered 3-day air quality forecast for Islamabad using XGBoost, LightGBM, and CatBoost.
