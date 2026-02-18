@@ -1,5 +1,3 @@
-@"
-# Minimal CI dependencies for GitHub Actions
 hopsworks[python]==4.7.2
 pandas==2.1.4
 numpy==1.26.4
@@ -11,4 +9,3 @@ pyarrow>=17.0
 joblib==1.3.2
 requests==2.31.0
 python-dotenv==1.0.1
-"@ | Out-File -FilePath requirements-ci.txt -Encoding utf8
