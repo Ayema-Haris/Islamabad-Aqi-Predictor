@@ -1,0 +1,32 @@
+{
+  "generated_at": "2026-02-17T20:34:07.220976+00:00",
+  "forecast_days": [
+    {
+      "date": "2026-02-18",
+      "avg_aqi": 115,
+      "min_aqi": 75,
+      "max_aqi": 166,
+      "avg_pm2_5": 45.13999938964844,
+      "category": "Unhealthy for Sensitive Groups",
+      "emoji": "\ud83d\udfe0"
+    },
+    {
+      "date": "2026-02-19",
+      "avg_aqi": 106,
+      "min_aqi": 65,
+      "max_aqi": 161,
+      "avg_pm2_5": 39.310001373291016,
+      "category": "Unhealthy for Sensitive Groups",
+      "emoji": "\ud83d\udfe0"
+    },
+    {
+      "date": "2026-02-20",
+      "avg_aqi": 110,
+      "min_aqi": 69,
+      "max_aqi": 161,
+      "avg_pm2_5": 40.939998626708984,
+      "category": "Unhealthy for Sensitive Groups",
+      "emoji": "\ud83d\udfe0"
+    }
+  ]
+}

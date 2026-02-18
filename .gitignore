@@ -1,21 +1,33 @@
+@"
 # Python
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-*.sqlite3
-*.db
-
-# Virtual environment
+*$py.class
+*.so
+.Python
 venv/
-.env
+env/
+*.egg-info/
+dist/
+build/
 
-# Jupyter
-.ipynb_checkpoints
+# Environment
+.env
+*.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Hopsworks API key
-*.env
+# Hopsworks downloads
+catboost_info/
+
+# Don't ignore predictions - we want them in Git for Streamlit
+!artifacts/predictions/
+"@ | Out-File -FilePath .gitignore -Encoding utf8

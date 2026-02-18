@@ -1,117 +1,98 @@
-# aqi_feature_pipeline.py
-#Reads raw data from Hopsworks.
-#Performs feature engineering (hour/day/month, pollutant changes, rolling averages, etc.).
-#nserts engineered features into a new feature group in Hopsworks.
+"""
+aqi_feature_pipeline.py
+────────────────────────
+Runs every hour (GitHub Actions cron: '0 * * * *').
 
-import pandas as pd
-import hopsworks
-from fetch_open_meteo import fetch_air_quality
-from datetime import datetime, timedelta
+What it does:
+  1. Fetches the latest hourly air-quality data from Open-Meteo
+  2. Inserts new rows into the Hopsworks feature group `islamabad_hourly_aqi`
+     (primary key = timestamp → duplicates are automatically handled by Hudi)
+  3. On first ever run it also creates the feature view used by training
 
-# -----------------------------
-# CONFIG
-# -----------------------------
+Usage:
+    python src/feature_store/aqi_feature_pipeline.py
+"""
+
 import os
 import sys
+import hopsworks
+import pandas as pd
+from datetime import datetime, timezone
+from pathlib import Path
+from dotenv import load_dotenv
 
-API_KEY = os.getenv("HOPSWORKS_API_KEY")
-if not API_KEY:
-    # fallback for local testing
-    if len(sys.argv) > 1:
-        API_KEY = sys.argv[1]
-    else:
-        raise ValueError(
-            "HOPSWORKS_API_KEY not set. Use environment variable or pass as CLI argument."
+# Add parent directory to path so we can import fetch_open_meteo
+sys.path.insert(0, str(Path(__file__).parent))
+from fetch_open_meteo import fetch_latest_hour
+
+load_dotenv(dotenv_path=Path(__file__).parents[2] / ".env", override=True)
+
+# ── Constants ──────────────────────────────────────────────────────────────
+HOPSWORKS_HOST    = "eu-west.cloud.hopsworks.ai"
+HOPSWORKS_PROJECT = "Islamabad_Aqi_Predictor"
+
+FG_NAME    = "islamabad_hourly_aqi"
+FG_VERSION = 1
+FV_NAME    = "aqi_feature_view"
+FV_VERSION = 1
+
+
+def get_or_create_feature_view(fs, fg):
+    """Return existing feature view or create it if it doesn't exist yet."""
+    try:
+        fv = fs.get_feature_view(name=FV_NAME, version=FV_VERSION)
+        print(f"  ✔  Feature view '{FV_NAME}' v{FV_VERSION} already exists.")
+    except Exception:
+        print(f"  ⚙  Creating feature view '{FV_NAME}' v{FV_VERSION} ...")
+        query = fg.select_all()
+        fv = fs.create_feature_view(
+            name=FV_NAME,
+            version=FV_VERSION,
+            query=query,
+            description="Hourly AQI features for Islamabad – used for training & inference",
         )
+        print(f"  ✔  Feature view created.")
+    return fv
 
-HOPSWORKS_HOST = "eu-west.cloud.hopsworks.ai"
-PROJECT_NAME = "Islamabad_Aqi_Predictor"
-FEATURE_GROUP_NAME = "islamabad_hourly_aqi"
 
-# 3 months of historical data
-START_DATE = "2025-11-02"
-END_DATE = "2026-02-02"
+def run():
+    print("=" * 60)
+    print(f"  AQI Feature Pipeline  |  {datetime.now(timezone.utc).isoformat()}")
+    print("=" * 60)
 
-# -----------------------------
-# LOGIN TO HOPSWORKS
-# -----------------------------
-print("Connecting to Hopsworks...")
-project = hopsworks.login(api_key_value=API_KEY, host="eu-west.cloud.hopsworks.ai")
+    # ── 1. Connect ─────────────────────────────────────────────────────────
+    print("\n[1/4] Connecting to Hopsworks ...")
+    project = hopsworks.login(
+        host          = HOPSWORKS_HOST,
+        project       = HOPSWORKS_PROJECT,
+        api_key_value = os.getenv("HOPSWORKS_API_KEY"),
+    )
+    fs = project.get_feature_store()
+    print(f"  ✔  Connected  →  project: {project.name}")
 
-fs = project.get_feature_store()
-print(f"Logged in to project: {project.name}")
-print(f"Feature Store: {fs.name}")
-
-# -----------------------------
-# DELETE OLD FEATURE GROUP (if exists)
-# -----------------------------
-try:
-    old_fg = fs.get_feature_group(name=FEATURE_GROUP_NAME, version=1)
-    if old_fg:
-        old_fg.delete()
-        print("Old feature group deleted.")
-except:
-    pass
-
-# -----------------------------
-# CREATE NEW FEATURE GROUP
-# -----------------------------
-aqi_fg = fs.create_feature_group(
-    name=FEATURE_GROUP_NAME,
-    version=1,
-    description="Hourly AQI and weather data for Islamabad with time-based and derived features",
-    primary_key=["timestamp"],
-    online_enabled=False
-)
-print("New feature group created successfully.")
-
-# -----------------------------
-# LOOP OVER DATE RANGE AND PROCESS DATA
-# -----------------------------
-start_dt = datetime.strptime(START_DATE, "%Y-%m-%d")
-end_dt = datetime.strptime(END_DATE, "%Y-%m-%d")
-current_dt = start_dt
-
-while current_dt <= end_dt:
-    next_dt = current_dt + timedelta(days=1)
-    
-    # Fetch raw data from API
-    df = fetch_air_quality(current_dt.strftime("%Y-%m-%d"), next_dt.strftime("%Y-%m-%d"))
-    
+    # ── 2. Fetch data ──────────────────────────────────────────────────────
+    print("\n[2/4] Fetching latest hourly data from Open-Meteo ...")
+    df = fetch_latest_hour()
     if df.empty:
-        print(f"No data for {current_dt.strftime('%Y-%m-%d')}, skipping.")
-        current_dt = next_dt
-        continue
-    
-    # -----------------------------
-    # Convert timestamp to datetime
-    # -----------------------------
-    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='us')
-    
-    # -----------------------------
-    # Sort by timestamp
-    # -----------------------------
-    df = df.sort_values(by='timestamp').reset_index(drop=True)
-    
-    # -----------------------------
-    # Compute time-based features
-    # -----------------------------
-    df['hour'] = df['timestamp'].dt.hour
-    df['day'] = df['timestamp'].dt.day
-    df['month'] = df['timestamp'].dt.month
-    
-    # -----------------------------
-    # Compute derived features (change rates)
-    # -----------------------------
-    df['pm2_5_change'] = df['pm2_5'].diff().fillna(0)
-    df['pm10_change'] = df['pm10'].diff().fillna(0)
-    
-    # -----------------------------
-    # Insert into Hopsworks Feature Store
-    # -----------------------------
-    aqi_fg.insert(df, write_options={"mode": "append"})
-    print(f"Data for {current_dt.strftime('%Y-%m-%d')} inserted/appended to feature group.")
-    
-    current_dt = next_dt
+        print("  ⚠  No data returned – skipping insert.")
+        return
+    print(f"  ✔  {len(df)} rows fetched  |  latest: {df['timestamp'].max()}")
 
-print("Feature pipeline completed successfully!")
+    # ── 3. Insert into feature group ───────────────────────────────────────
+    print(f"\n[3/4] Inserting into '{FG_NAME}' v{FG_VERSION} ...")
+    fg = fs.get_feature_group(name=FG_NAME, version=FG_VERSION)
+
+    # wait_for_job=False keeps the hourly pipeline fast;
+    # Hudi deduplicates on primary key (timestamp) automatically
+    fg.insert(df, write_options={"wait_for_job": False})
+    print(f"  ✔  Insert submitted  ({len(df)} rows)")
+
+    # ── 4. Ensure feature view exists ──────────────────────────────────────
+    print(f"\n[4/4] Checking feature view ...")
+    get_or_create_feature_view(fs, fg)
+
+    print("\n✅  Feature pipeline finished successfully.\n")
+
+
+if __name__ == "__main__":
+    run()

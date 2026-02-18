@@ -1,0 +1,36 @@
+{
+  "best_model": "XGBoost",
+  "timestamp": "2026-02-17T15:44:10.773986+00:00",
+  "all_results": {
+    "XGBoost": {
+      "cv_rmse": 5.362185357826282,
+      "cv_std": 6.111056364588462,
+      "train_rmse": 0.6903259582562097,
+      "test_rmse": 3.1688001092847795,
+      "test_mae": 2.3044815473427063,
+      "test_r2": 0.9888606515192125,
+      "overfitting_ratio": 0.21785090079791153,
+      "is_overfitting": true
+    },
+    "LightGBM": {
+      "cv_rmse": 6.374989659331064,
+      "cv_std": 7.51012752100488,
+      "train_rmse": 0.8957687363881306,
+      "test_rmse": 3.202199765973002,
+      "test_mae": 2.3202635158309706,
+      "test_r2": 0.9886245929876945,
+      "overfitting_ratio": 0.2797354324694816,
+      "is_overfitting": true
+    },
+    "CatBoost": {
+      "cv_rmse": 6.804584220806099,
+      "cv_std": 7.531548588673234,
+      "train_rmse": 1.2673941193843354,
+      "test_rmse": 3.3488123456813783,
+      "test_mae": 2.424304363382303,
+      "test_r2": 0.9875591021008319,
+      "overfitting_ratio": 0.3784607761073159,
+      "is_overfitting": true
+    }
+  }
+}
