@@ -1,32 +1,32 @@
 {
-  "generated_at": "2026-07-24T04:18:33.789742+00:00",
+  "generated_at": "2026-07-25T04:14:15.962602+00:00",
   "forecast_days": [
     {
-      "date": "2026-07-24",
-      "avg_aqi": 92,
-      "min_aqi": 57,
-      "max_aqi": 155,
-      "avg_pm2_5": 31.1200008392334,
+      "date": "2026-07-25",
+      "avg_aqi": 90,
+      "min_aqi": 58,
+      "max_aqi": 153,
+      "avg_pm2_5": 30.100000381469727,
       "category": "Moderate",
       "emoji": "\ud83d\udfe1"
     },
     {
-      "date": "2026-07-25",
-      "avg_aqi": 103,
-      "min_aqi": 69,
-      "max_aqi": 157,
-      "avg_pm2_5": 36.279998779296875,
+      "date": "2026-07-26",
+      "avg_aqi": 120,
+      "min_aqi": 65,
+      "max_aqi": 500,
+      "avg_pm2_5": 37.43000030517578,
       "category": "Unhealthy for Sensitive Groups",
       "emoji": "\ud83d\udfe0"
     },
     {
-      "date": "2026-07-26",
-      "avg_aqi": 92,
-      "min_aqi": 64,
-      "max_aqi": 155,
-      "avg_pm2_5": 31.020000457763672,
-      "category": "Moderate",
-      "emoji": "\ud83d\udfe1"
+      "date": "2026-07-27",
+      "avg_aqi": 116,
+      "min_aqi": 79,
+      "max_aqi": 158,
+      "avg_pm2_5": 43.709999084472656,
+      "category": "Unhealthy for Sensitive Groups",
+      "emoji": "\ud83d\udfe0"
     }
   ]
 }
