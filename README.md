@@ -9,7 +9,9 @@
 
 > A machine learning system that predicts air quality in Islamabad, Pakistan for the next 3 days, enabling citizens to make informed health decisions.
 
----
+<p align="center">
+  <img src="AQI.jpg" alt="Islamabad Air Quality Predictor" width="800">
+</p>
 
 ## Overview
 
